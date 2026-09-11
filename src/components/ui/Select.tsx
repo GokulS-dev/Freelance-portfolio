@@ -6,18 +6,24 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   placeholder?: string;
 }
 
-export function Select({ label, id, options, placeholder, className, ...props }: SelectProps) {
+export function Select({ label, id, options, placeholder, className, required, ...props }: SelectProps) {
   const selectId = id ?? label.toLowerCase().replace(/\s+/g, "-");
   return (
     <div className="flex flex-col gap-2">
       <label
         htmlFor={selectId}
-        className="font-[family-name:var(--font-primary)] text-[14px] font-medium text-[var(--color-primary)]"
+        className="font-[family-name:var(--font-primary)] text-[14px] font-medium text-[var(--color-primary)] flex items-center gap-1"
       >
-        {label}
+        <span>{label}</span>
+        {required && (
+          <span className="text-red-500 text-[13px] leading-none" aria-hidden="true">
+            *
+          </span>
+        )}
       </label>
       <select
         id={selectId}
+        required={required}
         className={cn(
           "w-full h-[48px] px-4",
           "bg-[var(--color-surface)] text-[var(--color-text)]",

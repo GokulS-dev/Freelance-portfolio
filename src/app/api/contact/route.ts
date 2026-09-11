@@ -5,6 +5,7 @@ import nodemailer from "nodemailer";
 interface ContactRequestBody {
   name?: string;
   email?: string;
+  phone?: string;
   company?: string;
   projectType?: string;
   message?: string;
@@ -13,12 +14,19 @@ interface ContactRequestBody {
 export async function POST(request: Request) {
   try {
     const body: ContactRequestBody = await request.json();
-    const { name, email, company, projectType, message } = body;
+    const { name, email, phone, company, projectType, message } = body;
 
     // Validate required fields
-    if (!name?.trim() || !email?.trim() || !message?.trim()) {
+    if (
+      !name?.trim() ||
+      !email?.trim() ||
+      !phone?.trim() ||
+      !company?.trim() ||
+      !projectType?.trim() ||
+      !message?.trim()
+    ) {
       return NextResponse.json(
-        { error: "Name, email, and message are required." },
+        { error: "All fields are required (Name, Email, Phone Number, Business / Company, Project Type, and Message)." },
         { status: 400 }
       );
     }
@@ -27,6 +35,14 @@ export async function POST(request: Request) {
     if (!emailRegex.test(email)) {
       return NextResponse.json(
         { error: "Please provide a valid email address." },
+        { status: 400 }
+      );
+    }
+
+    const cleanPhoneDigits = phone.replace(/[^0-9]/g, "");
+    if (cleanPhoneDigits.length < 7 || cleanPhoneDigits.length > 15) {
+      return NextResponse.json(
+        { error: "Please provide a valid phone number." },
         { status: 400 }
       );
     }
@@ -49,12 +65,16 @@ export async function POST(request: Request) {
             <td style="padding: 8px 0; color: #2563eb; font-weight: 500;"><a href="mailto:${email}" style="color: #2563eb; text-decoration: none;">${email}</a></td>
           </tr>
           <tr>
+            <td style="padding: 8px 0; color: #6b7280;"><strong>Client Phone:</strong></td>
+            <td style="padding: 8px 0; color: #2563eb; font-weight: 500;"><a href="tel:${phone}" style="color: #2563eb; text-decoration: none;">${phone}</a></td>
+          </tr>
+          <tr>
             <td style="padding: 8px 0; color: #6b7280;"><strong>Business / Company:</strong></td>
-            <td style="padding: 8px 0; color: #111827;">${company?.trim() || "Not specified"}</td>
+            <td style="padding: 8px 0; color: #111827; font-weight: 500;">${company?.trim()}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #6b7280;"><strong>Project Type:</strong></td>
-            <td style="padding: 8px 0; color: #111827; font-weight: 500;">${projectType || "General Enquiry"}</td>
+            <td style="padding: 8px 0; color: #111827; font-weight: 500;">${projectType}</td>
           </tr>
         </table>
         <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 18px;">
@@ -86,7 +106,7 @@ export async function POST(request: Request) {
           replyTo: email,
           subject: formattedSubject,
           html: htmlContent,
-          text: `New Enquiry from ${name} (${email})\nCompany: ${company || "N/A"}\nProject: ${projectType || "General"}\n\nMessage:\n${message}`,
+          text: `New Enquiry from ${name} (${email})\nPhone: ${phone}\nCompany: ${company}\nProject: ${projectType}\n\nMessage:\n${message}`,
         });
 
         return NextResponse.json({
@@ -137,8 +157,9 @@ export async function POST(request: Request) {
           access_key: process.env.WEB3FORMS_ACCESS_KEY,
           name,
           email,
-          company: company || "Not specified",
-          project_type: projectType || "General",
+          phone,
+          company,
+          project_type: projectType,
           message,
           subject: formattedSubject,
           to: recipientEmail,
@@ -174,8 +195,9 @@ export async function POST(request: Request) {
           body: JSON.stringify({
             name,
             email,
-            company: company || "Not specified",
-            projectType: projectType || "General",
+            phone,
+            company,
+            projectType,
             message,
             _replyto: email,
             _subject: formattedSubject,

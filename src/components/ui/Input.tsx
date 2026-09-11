@@ -4,18 +4,24 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
 }
 
-export function Input({ label, id, className, ...props }: InputProps) {
+export function Input({ label, id, className, required, ...props }: InputProps) {
   const inputId = id ?? label.toLowerCase().replace(/\s+/g, "-");
   return (
     <div className="flex flex-col gap-2">
       <label
         htmlFor={inputId}
-        className="font-[family-name:var(--font-primary)] text-[14px] font-medium text-[var(--color-primary)]"
+        className="font-[family-name:var(--font-primary)] text-[14px] font-medium text-[var(--color-primary)] flex items-center gap-1"
       >
-        {label}
+        <span>{label}</span>
+        {required && (
+          <span className="text-red-500 text-[13px] leading-none" aria-hidden="true">
+            *
+          </span>
+        )}
       </label>
       <input
         id={inputId}
+        required={required}
         className={cn(
           "w-full h-[48px] px-4",
           "bg-[var(--color-surface)] text-[var(--color-text)]",

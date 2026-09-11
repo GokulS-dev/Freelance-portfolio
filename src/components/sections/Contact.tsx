@@ -17,17 +17,11 @@ const projectTypes = [
   { value: "other", label: "Other" },
 ];
 
-const socialLinks = [
-  { label: "WhatsApp", href: siteConfig.whatsapp },
-  { label: "Email", href: `mailto:${siteConfig.email}` },
-  { label: "LinkedIn", href: siteConfig.linkedin },
-  { label: "GitHub", href: siteConfig.github },
-];
-
 export function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     company: "",
     projectType: "",
     message: "",
@@ -51,7 +45,7 @@ export function Contact() {
       `New Project Enquiry from ${formData.name || "Client"} - ${formData.projectType || "General"}`
     );
     const body = encodeURIComponent(
-      `Hi Gokul,\n\nName: ${formData.name}\nEmail: ${formData.email}\nCompany: ${formData.company || "Not specified"}\nProject Type: ${formData.projectType || "General"}\n\nProject Details:\n${formData.message}\n`
+      `Hi Gokul,\n\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nCompany: ${formData.company}\nProject Type: ${formData.projectType}\n\nProject Details:\n${formData.message}\n`
     );
     return `mailto:${siteConfig.email}?subject=${subject}&body=${body}`;
   };
@@ -136,6 +130,7 @@ export function Contact() {
                       setFormData({
                         name: "",
                         email: "",
+                        phone: "",
                         company: "",
                         projectType: "",
                         message: "",
@@ -189,13 +184,25 @@ export function Contact() {
                     required
                   />
                 </div>
-                <Input
-                  label="Business / Company"
-                  name="company"
-                  value={formData.company}
-                  onChange={handleChange}
-                  placeholder="Your business or company name"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <Input
+                    label="Phone Number"
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="+91 98765 43210"
+                    required
+                  />
+                  <Input
+                    label="Business / Company"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleChange}
+                    placeholder="Your business or company name"
+                    required
+                  />
+                </div>
                 <Select
                   label="Project Type"
                   name="projectType"
@@ -203,6 +210,7 @@ export function Contact() {
                   onChange={handleChange}
                   options={projectTypes}
                   placeholder="Select a project type"
+                  required
                 />
                 <Textarea
                   label="Message"
